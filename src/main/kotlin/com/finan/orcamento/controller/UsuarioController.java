@@ -23,6 +23,8 @@ public class UsuarioController {
     @GetMapping
     public String getUsuarioPage(Model model) {
         model.addAttribute("usuarioModel", new UsuarioModel());
+        model.addAttribute("usuarioToEdit", new UsuarioModel()); // ADICIONADO
+        model.addAttribute("usuarios", usuarioService.buscarUsuario()); // opcional, mostra já a lista
         return "usuarioPage";
     }
 
@@ -37,6 +39,28 @@ public class UsuarioController {
         List<UsuarioModel> usuarios = usuarioService.buscarUsuario();
         model.addAttribute("usuarios", usuarios);
         model.addAttribute("usuarioModel", new UsuarioModel());
+        model.addAttribute("usuarioToEdit", new UsuarioModel()); // ADICIONADO
         return "usuarioPage";
+    }
+
+    @PostMapping("buscar")
+    public String buscarPorNome(@RequestParam("nomeBusca") String nomeBusca, Model model) {
+        List<UsuarioModel> resultados = usuarioService.buscarPorNome(nomeBusca);
+        model.addAttribute("resultadosBusca", resultados);
+        // preenche o formulário de edição com o primeiro resultado (se houver)
+        model.addAttribute("usuarioToEdit", resultados.isEmpty() ? new UsuarioModel() : resultados.get(0));
+        // também atualiza a lista completa e o form de criação
+        model.addAttribute("usuarios", usuarioService.buscarUsuario());
+        model.addAttribute("usuarioModel", new UsuarioModel());
+        return "usuarioPage";
+    }
+
+    @PostMapping("atualizar")
+    public ResponseEntity<UsuarioModel> atualizarUsuario(@ModelAttribute("usuarioToEdit") UsuarioModel usuarioToEdit) {
+        if (usuarioToEdit.getId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        UsuarioModel atualizado = usuarioService.atualizaUsuario(usuarioToEdit, usuarioToEdit.getId());
+        return ResponseEntity.ok(atualizado);
     }
 }

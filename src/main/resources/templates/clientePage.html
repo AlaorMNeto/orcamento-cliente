@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciamento de Clientes</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f4f7fb;
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #0077cc;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: #fff;
+      padding: 20px;
+      margin: 20px auto;
+      width: 380px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    form label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+
+    form input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    form button {
+      width: 100%;
+      background: #0077cc;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background: #005fa3;
+    }
+
+    table {
+      margin: 25px auto;
+      width: 85%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #0077cc;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .btn-small {
+      background: #00a86b;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-small.delete {
+      background: #e74c3c;
+    }
+
+    .btn-small:hover {
+      opacity: 0.85;
+    }
+
+    .search-box {
+      margin: 20px auto;
+      width: 380px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .search-box button {
+      background: #0077cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Gerenciamento de Clientes</h1>
+
+<!-- 🔍 Busca -->
+<form class="search-box" th:action="@{/clientes/buscar}" method="post">
+  <input type="text" name="termo" placeholder="Buscar por nome ou CPF">
+  <button type="submit">Buscar</button>
+</form>
+
+<!-- 🧾 Formulário de cadastro/edição -->
+<form th:action="@{/clientes}" th:object="${clienteModel}" method="post">
+  <input type="hidden" th:field="*{id}" />
+
+  <label>Nome:</label>
+  <input type="text" th:field="*{nome}" placeholder="Digite o nome" required>
+
+  <label>CPF:</label>
+  <input type="text" th:field="*{cpf}" placeholder="Digite o CPF" required>
+
+  <button type="submit" th:text="*{id} != null ? 'Atualizar' : 'Cadastrar'"></button>
+</form>
+
+<!-- 📋 Tabela de clientes -->
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Nome</th>
+    <th>CPF</th>
+    <th>Ações</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="c : ${clientes}">
+    <td th:text="${c.id}"></td>
+    <td th:text="${c.nome}"></td>
+    <td th:text="${c.cpf}"></td>
+    <td>
+      <a th:href="@{'/clientes/editar/' + ${c.id}}">
+        <button class="btn-small">Editar</button>
+      </a>
+      <a th:href="@{'/clientes/excluir/' + ${c.id}}"
+         onclick="return confirm('Deseja excluir este cliente?');">
+        <button class="btn-small delete">Excluir</button>
+      </a>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

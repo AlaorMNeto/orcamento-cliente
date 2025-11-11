@@ -1,51 +1,25 @@
 package com.finan.orcamento.model;
 
-import com.finan.orcamento.model.enums.IcmsEstados;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Objects;
 
 @Entity
-@Table(name="orcamento")
-public class OrcamentoModel implements Serializable {
+@Table(name = "orcamentos")
+public class OrcamentoModel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private IcmsEstados icmsEstados;
+    private String descricao;
 
-    @NotNull
-    @Column(name="valor_orcamento")
-    private BigDecimal valorOrcamento;
-
-    @Column(name="valor_icms")
-    private BigDecimal valorICMS;
+    private BigDecimal valor; // ✅ Tipo correto
 
     @ManyToOne
-    @JoinColumn(name="usuario_id", referencedColumnName = "id")
-    private UsuarioModel usuario;
+    @JoinColumn(name = "cliente_id")
+    private ClienteModel cliente;
 
-    public void calcularIcms() {
-        this.valorICMS = this.icmsEstados.getStrategy().calcular(this.valorOrcamento);
-    }
-
-    public OrcamentoModel(){}
-
-    public OrcamentoModel(Long id, IcmsEstados icmsEstados, @NotNull BigDecimal valorOrcamento, BigDecimal valorICMS, UsuarioModel usuario) {
-        this.id = id;
-        this.icmsEstados = icmsEstados;
-        this.valorOrcamento = valorOrcamento;
-        this.valorICMS = valorICMS;
-        this.usuario = usuario;
-    }
-
+    // Getters e setters
     public Long getId() {
         return id;
     }
@@ -54,48 +28,27 @@ public class OrcamentoModel implements Serializable {
         this.id = id;
     }
 
-    public IcmsEstados getIcmsEstados() {
-        return icmsEstados;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public void setIcmsEstados(IcmsEstados icmsEstados) {
-        this.icmsEstados = icmsEstados;
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 
-    @NotNull
-    public BigDecimal getValorOrcamento() {
-        return valorOrcamento;
+    public BigDecimal getValor() {
+        return valor;
     }
 
-    public void setValorOrcamento(@NotNull BigDecimal valorOrcamento) {
-        this.valorOrcamento = valorOrcamento;
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
     }
 
-    public BigDecimal getValorICMS() {
-        return valorICMS;
+    public ClienteModel getCliente() {
+        return cliente;
     }
 
-    public void setValorICMS(BigDecimal valorICMS) {
-        this.valorICMS = valorICMS;
-    }
-
-    public UsuarioModel getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(UsuarioModel usuario) {
-        this.usuario = usuario;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        OrcamentoModel that = (OrcamentoModel) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public void setCliente(ClienteModel cliente) {
+        this.cliente = cliente;
     }
 }

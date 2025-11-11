@@ -17,6 +17,10 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
+    public List<UsuarioModel> buscarPorNome(String nome){
+        return usuarioRepository.findByNomeUsuarioContainingIgnoreCase(nome);
+    }
+
     public UsuarioModel buscaId(Long id){
         Optional<UsuarioModel>obj=usuarioRepository.findById(id);
         if (obj.isPresent()) {
@@ -33,6 +37,9 @@ public class UsuarioService {
     public UsuarioModel atualizaUsuario(UsuarioModel usuarioModel, Long id){
         UsuarioModel newUsuarioModel = buscaId(id);
         newUsuarioModel.setNomeUsuario(usuarioModel.getNomeUsuario());
+        newUsuarioModel.setRg(usuarioModel.getRg());
+        newUsuarioModel.setCpf(usuarioModel.getCpf());
+        newUsuarioModel.setNomeMae(usuarioModel.getNomeMae());
         return usuarioRepository.save(newUsuarioModel);
     }
     public void deletaUsuario(Long id){

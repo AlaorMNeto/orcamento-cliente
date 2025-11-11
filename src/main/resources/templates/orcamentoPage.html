@@ -1,0 +1,220 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Orçamentos</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #f4f7fb;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #0077cc;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: #fff;
+      padding: 25px;
+      margin: 20px auto;
+      width: 400px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: left;
+    }
+
+    form label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      color: #444;
+    }
+
+    form input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    form input:focus {
+      outline: none;
+      border-color: #0077cc;
+      box-shadow: 0 0 6px rgba(0, 119, 204, 0.3);
+    }
+
+    form button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #0077cc;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    form button:hover {
+      background: #005fa3;
+    }
+
+    table {
+      margin: 25px auto;
+      width: 85%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    table th {
+      background: #0077cc;
+      color: white;
+      font-size: 15px;
+    }
+
+    table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    button.small {
+      background: #00a86b;
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    button.small:hover {
+      background: #008c59;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Cadastro de Orçamentos</h1>
+
+<!-- ===== FORM DE BUSCA DE CLIENTE ===== -->
+<form th:action="@{/orcamentos/buscarCliente}" method="post">
+  <label>Buscar Cliente (Nome ou CPF)</label>
+  <input type="text" name="termo" placeholder="Digite o nome ou CPF" required>
+  <button type="submit">Buscar</button>
+</form>
+
+<!-- ===== RESULTADO DA BUSCA ===== -->
+<div th:if="${clientesEncontrados != null}">
+  <h3>Clientes encontrados</h3>
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>CPF</th>
+      <th>Selecionar</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="c : ${clientesEncontrados}">
+      <td th:text="${c.id}"></td>
+      <td th:text="${c.nome}"></td>
+      <td th:text="${c.cpf}"></td>
+      <td>
+        <button class="small" type="button"
+                th:attr="data-id=${c.id},data-nome=${c.nome}"
+                onclick="selecionarCliente(this)">Selecionar</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== FORM DE ORÇAMENTO ===== -->
+<form id="orcamentoForm" th:action="@{/orcamentos}" th:object="${orcamentoModel}" method="post">
+  <input type="hidden" name="clienteId" id="clienteId">
+
+  <label>Cliente Selecionado</label>
+  <input type="text" id="clienteNome" readonly placeholder="Selecione um cliente acima">
+
+  <label>Descrição do Orçamento</label>
+  <input type="text" th:field="*{descricao}" placeholder="Ex: Compra de materiais" required>
+
+  <label>Valor (R$)</label>
+  <input type="number" step="0.01" min="0" th:field="*{valor}" placeholder="Ex: 500.00" required>
+
+  <button type="submit">Salvar Orçamento</button>
+</form>
+
+<!-- ===== TABELA DE ORÇAMENTOS ===== -->
+<h2>Orçamentos Cadastrados</h2>
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Descrição</th>
+    <th>Valor (R$)</th>
+    <th>Cliente</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="o : ${orcamentos}">
+    <td th:text="${o.id}"></td>
+    <td th:text="${o.descricao}"></td>
+    <td th:text="${#numbers.formatDecimal(o.valor, 1, 2)}"></td>
+    <td th:text="${o.cliente.nome}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<!-- ===== SCRIPT ===== -->
+<script>
+  function selecionarCliente(btn) {
+    document.getElementById("clienteId").value = btn.dataset.id;
+    document.getElementById("clienteNome").value = btn.dataset.nome;
+    alert("Cliente selecionado: " + btn.dataset.nome);
+    window.scrollTo({ top: document.body.scrollHeight / 3, behavior: 'smooth' });
+  }
+
+  document.getElementById("orcamentoForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+      method: form.method,
+      body: formData
+    }).then(resp => {
+      if (resp.ok) {
+        alert("Orçamento salvo com sucesso!");
+        window.location.href = "/orcamentos";
+      } else {
+        alert("Erro ao salvar o orçamento!");
+      }
+    });
+  });
+</script>
+</body>
+</html>

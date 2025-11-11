@@ -1,43 +1,54 @@
 package com.finan.orcamento.controller;
 
+import com.finan.orcamento.model.ClienteModel;
 import com.finan.orcamento.model.OrcamentoModel;
-import com.finan.orcamento.repositories.OrcamentoRepository;
+import com.finan.orcamento.service.ClienteService;
 import com.finan.orcamento.service.OrcamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping(path="/orcamentos")
+@Controller
+@RequestMapping("/orcamentos")
 public class OrcamentoController {
+
     @Autowired
     private OrcamentoService orcamentoService;
-    @Autowired
-    private OrcamentoRepository orcamentoRepository;
 
+    @Autowired
+    private ClienteService clienteService;
+
+    // ✅ Página principal de orçamentos
     @GetMapping
-    public ResponseEntity<List<OrcamentoModel>>buscaTodosOrcamentos(){
-        return ResponseEntity.ok(orcamentoService.buscarCadastro());
+    public String getOrcamentoPage(Model model) {
+        model.addAttribute("orcamentoModel", new OrcamentoModel());
+        model.addAttribute("orcamentos", orcamentoService.listarOrcamentos());
+        return "orcamentoPage";
     }
-    @GetMapping(path="/pesquisaid/{id}")
-    public ResponseEntity<OrcamentoModel>buscaPorId(@PathVariable Long id){
-        return ResponseEntity.ok().body(orcamentoService.buscaId(id));
-    }
+
+    // ✅ Salvar novo orçamento vinculado a um cliente
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<OrcamentoModel>cadastraOrcamento(@RequestBody OrcamentoModel orcamentoModel){
-        return ResponseEntity.ok(orcamentoService.cadastrarOrcamento(orcamentoModel));
+    public ResponseEntity<OrcamentoModel> salvarOrcamento(
+            @ModelAttribute OrcamentoModel orcamentoModel,
+            @RequestParam("clienteId") Long clienteId) {
+
+        OrcamentoModel novoOrcamento = orcamentoService.salvarOrcamento(orcamentoModel, clienteId);
+        return ResponseEntity.ok(novoOrcamento);
     }
-    @PostMapping(path="/put/{id}")
-    public ResponseEntity<OrcamentoModel>atualizaOrcamento(@RequestBody OrcamentoModel orcamentoModel, @PathVariable Long id){
-        OrcamentoModel orcamentoNewObj= orcamentoService.atualizaCadastro(orcamentoModel, id);
-        return ResponseEntity.ok().body(orcamentoNewObj);
-    }
-    @DeleteMapping(path="/delete/{id}")
-    public void deleteOrcamento(@PathVariable Long id){
-        orcamentoService.deletaOrcamento(id);
+
+    // ✅ Buscar cliente por nome ou CPF
+    @PostMapping("/buscarCliente")
+    public String buscarCliente(@RequestParam String termo, Model model) {
+        List<ClienteModel> clientesEncontrados = clienteService.buscarPorNomeOuCpf(termo);
+        model.addAttribute("clientesEncontrados", clientesEncontrados);
+        model.addAttribute("orcamentoModel", new OrcamentoModel());
+        model.addAttribute("orcamentos", orcamentoService.listarOrcamentos());
+        return "orcamentoPage";
     }
 }
