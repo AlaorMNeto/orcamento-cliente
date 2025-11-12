@@ -7,51 +7,40 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/clientes")
 public class ClienteController {
+    @Autowired private ClienteService clienteService;
 
-    @Autowired
-    private ClienteService clienteService;
-
-    // Página inicial de clientes
     @GetMapping
-    public String listarClientes(Model model) {
+    public String page(Model model) {
         model.addAttribute("clientes", clienteService.listarTodos());
         model.addAttribute("clienteModel", new ClienteModel());
         return "clientePage";
     }
 
-    // Salvar novo cliente ou atualizar existente
-    @PostMapping
-    public String salvarCliente(@ModelAttribute ClienteModel clienteModel) {
-        clienteService.salvar(clienteModel);
+    @PostMapping("/salvar")
+    public String salvar(@ModelAttribute ClienteModel cliente) {
+        clienteService.salvar(cliente);
         return "redirect:/clientes";
     }
 
-    // Excluir cliente
     @GetMapping("/excluir/{id}")
-    public String excluirCliente(@PathVariable Long id) {
+    public String excluir(@PathVariable Long id) {
         clienteService.excluir(id);
         return "redirect:/clientes";
     }
 
-    // Editar cliente
     @GetMapping("/editar/{id}")
-    public String editarCliente(@PathVariable Long id, Model model) {
-        ClienteModel cliente = clienteService.buscarPorId(id);
-        model.addAttribute("clienteModel", cliente);
+    public String editar(@PathVariable Long id, Model model) {
+        model.addAttribute("clienteModel", clienteService.buscarPorId(id));
         model.addAttribute("clientes", clienteService.listarTodos());
         return "clientePage";
     }
 
-    // Buscar cliente por nome ou CPF
     @PostMapping("/buscar")
-    public String buscarCliente(@RequestParam String termo, Model model) {
-        List<ClienteModel> clientesEncontrados = clienteService.buscarPorNomeOuCpf(termo);
-        model.addAttribute("clientes", clientesEncontrados);
+    public String buscar(@RequestParam String termo, Model model) {
+        model.addAttribute("clientes", clienteService.buscarPorNomeOuCpf(termo));
         model.addAttribute("clienteModel", new ClienteModel());
         return "clientePage";
     }

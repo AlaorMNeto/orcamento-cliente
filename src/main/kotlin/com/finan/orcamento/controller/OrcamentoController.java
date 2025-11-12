@@ -1,54 +1,49 @@
 package com.finan.orcamento.controller;
 
-import com.finan.orcamento.model.ClienteModel;
-import com.finan.orcamento.model.OrcamentoModel;
-import com.finan.orcamento.service.ClienteService;
-import com.finan.orcamento.service.OrcamentoService;
+import com.finan.orcamento.model.*;
+import com.finan.orcamento.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/orcamentos")
 public class OrcamentoController {
+    @Autowired private OrcamentoService orcamentoService;
+    @Autowired private ClienteService clienteService;
+    @Autowired private UsuarioService usuarioService;
 
-    @Autowired
-    private OrcamentoService orcamentoService;
-
-    @Autowired
-    private ClienteService clienteService;
-
-    // ✅ Página principal de orçamentos
     @GetMapping
-    public String getOrcamentoPage(Model model) {
+    public String page(Model model) {
+        model.addAttribute("orcamentos", orcamentoService.listarTodos());
+        model.addAttribute("clientes", clienteService.listarTodos());
+        model.addAttribute("usuarios", usuarioService.listarTodos());
         model.addAttribute("orcamentoModel", new OrcamentoModel());
-        model.addAttribute("orcamentos", orcamentoService.listarOrcamentos());
         return "orcamentoPage";
     }
 
-    // ✅ Salvar novo orçamento vinculado a um cliente
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<OrcamentoModel> salvarOrcamento(
-            @ModelAttribute OrcamentoModel orcamentoModel,
-            @RequestParam("clienteId") Long clienteId) {
+    // Endpoint genérico: decide por parâmetros qual salvar
+    @PostMapping("/salvar")
+    public String salvar(@ModelAttribute OrcamentoModel orcamento,
+                         @RequestParam(required = false) Long clienteId,
+                         @RequestParam(required = false) Long usuarioId,
+                         Model model) {
 
-        OrcamentoModel novoOrcamento = orcamentoService.salvarOrcamento(orcamentoModel, clienteId);
-        return ResponseEntity.ok(novoOrcamento);
+        if (usuarioId != null) {
+            orcamentoService.salvarParaUsuario(usuarioId, orcamento);
+        } else if (clienteId != null) {
+            orcamentoService.salvarParaCliente(clienteId, orcamento);
+        } else {
+            model.addAttribute("erro", "Escolha um Cliente ou Usuário antes de salvar.");
+            return page(model);
+        }
+        return "redirect:/orcamentos";
     }
 
-    // ✅ Buscar cliente por nome ou CPF
-    @PostMapping("/buscarCliente")
-    public String buscarCliente(@RequestParam String termo, Model model) {
-        List<ClienteModel> clientesEncontrados = clienteService.buscarPorNomeOuCpf(termo);
-        model.addAttribute("clientesEncontrados", clientesEncontrados);
-        model.addAttribute("orcamentoModel", new OrcamentoModel());
-        model.addAttribute("orcamentos", orcamentoService.listarOrcamentos());
-        return "orcamentoPage";
+    @GetMapping("/excluir/{id}")
+    public String excluir(@PathVariable Long id) {
+        orcamentoService.excluir(id);
+        return "redirect:/orcamentos";
     }
 }

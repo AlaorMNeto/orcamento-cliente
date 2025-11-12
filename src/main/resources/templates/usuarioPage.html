@@ -1,225 +1,117 @@
-<!doctype html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cadastro de Usuários</title>
-
-    <!-- CSS embutido (mantive o seu) -->
+    <title>Usuários</title>
     <style>
-        /* ===== Reset básico ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { margin: 0; background: #f8f9fa; }
+        header {
+          background: #0066cc;
+          color: #fff;
+          padding: 15px 30px;
         }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7fb;
-            color: #333;
-            padding: 20px;
-            text-align: center;
+        header nav a {
+          color: #fff;
+          margin-right: 20px;
+          text-decoration: none;
+          font-weight: bold;
         }
-        h1 { color: #0077cc; margin-bottom: 20px; }
-        h2 { margin-top: 40px; margin-bottom: 15px; color: #444; }
-        form { background: #fff; padding: 20px; margin: 0 auto; width: 350px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        form label { display: block; margin-top: 15px; font-weight: bold; text-align: left; }
-        form input { width: 100%; padding: 10px; margin-top: 6px; border-radius: 5px; border: 1px solid #bbb; font-size: 14px; }
-        form input:focus { border-color: #0077cc; outline: none; box-shadow: 0 0 5px rgba(0,119,204,0.5); }
-        button { margin-top: 20px; padding: 12px; width: 100%; border: none; border-radius: 5px; background: #0077cc; color: #fff; font-size: 16px; cursor: pointer; transition: 0.3s ease; }
-        button:hover { background: #005fa3; }
-        table { margin: 20px auto; border-collapse: collapse; width: 80%; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        table th, table td { padding: 14px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
-        table th { background: #0077cc; color: #fff; font-size: 15px; }
-        table tr:hover { background: #f1f1f1; }
-        /* pequena estilização adicional para resultado de busca */
-        .small-table { width: 80%; margin: 10px auto; }
-        .inline-forms { display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
-        .form-narrow { width: 320px; }
+        header nav a:hover { text-decoration: underline; }
+        .container {
+          max-width: 900px;
+          margin: 30px auto;
+          background: #fff;
+          padding: 25px;
+          border-radius: 10px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; margin-top: 0; }
+        form {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+          flex: 1;
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+        }
+        button {
+          background: #0066cc;
+          color: #fff;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        button:hover { background: #004c99; }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        table th, table td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: center;
+        }
+        table th {
+          background: #0066cc;
+          color: #fff;
+        }
+        table tr:nth-child(even) { background: #f2f2f2; }
+        a.btn {
+          color: #0066cc;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        a.btn:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-<h1>Cadastro de Usuários</h1>
+<header>
+    <nav>
+        <a href="/clientes">Clientes</a>
+        <a href="/usuarios">Usuários</a>
+        <a href="/orcamentos">Orçamentos</a>
+    </nav>
+</header>
 
-<!-- Form de criação original -->
-<form id="usuarioForm" th:action="@{/usuarios}" th:object="${usuarioModel}" method="post">
-    <label>Nome do Usuário</label>
-    <input type="text" th:field="*{nomeUsuario}" required><br>
+<div class="container">
+    <h1>Cadastro de Usuários</h1>
 
-    <label>RG</label>
-    <input type="text" th:field="*{rg}" required><br>
-
-    <label>CPF</label>
-    <input type="text" th:field="*{cpf}" required><br>
-
-    <label>Nome da Mãe</label>
-    <input type="text" th:field="*{nomeMae}" required><br>
-
-    <button id="salvarUsuario" type="submit">Salvar</button>
-</form>
-
-<!-- =============================
-     NOVO: Form de BUSCA e UPDATE
-     (fica entre o Form de criação e a tabela)
-     ============================= -->
-
-<h2>Buscar e Atualizar Usuário</h2>
-
-<div class="inline-forms">
-    <!-- Form de busca por nome -->
-    <form id="buscarForm" th:action="@{/usuarios/buscar}" method="post" class="form-narrow">
-        <label>Buscar por Nome</label>
-        <input type="text" name="nomeBusca" placeholder="Digite o nome para buscar">
+    <form th:action="@{/usuarios/buscar}" method="post">
+        <input type="text" name="termo" placeholder="Buscar por nome ou CPF">
         <button type="submit">Buscar</button>
     </form>
 
-    <!-- Form de atualização (vai ser preenchido com o resultado da busca ou pelo botão Editar da tabela) -->
-    <form id="updateForm" th:action="@{/usuarios/atualizar}" th:object="${usuarioToEdit}" method="post" class="form-narrow">
+    <form th:action="@{/usuarios/salvar}" th:object="${usuarioModel}" method="post">
         <input type="hidden" th:field="*{id}">
-        <label>Nome do Usuário (editar)</label>
-        <input type="text" th:field="*{nomeUsuario}" required>
-
-        <label>RG</label>
-        <input type="text" th:field="*{rg}" required>
-
-        <label>CPF</label>
-        <input type="text" th:field="*{cpf}" required>
-
-        <label>Nome da Mãe</label>
-        <input type="text" th:field="*{nomeMae}" required>
-
-        <button type="submit">Atualizar</button>
+        <input type="text" th:field="*{nome}" placeholder="Nome" required>
+        <input type="text" th:field="*{cpf}" placeholder="CPF" required>
+        <button type="submit" th:text="${usuarioModel.id} != null ? 'Atualizar' : 'Cadastrar'"></button>
     </form>
-</div>
 
-<!-- Mostrar resultados da busca (se houver) -->
-<div th:if="${resultadosBusca != null}">
-    <h3>Resultados da busca</h3>
-    <table class="small-table">
+    <table>
         <thead>
-        <tr><th>ID</th><th>Nome</th><th>RG</th><th>CPF</th><th>Nome da Mãe</th><th>Ação</th></tr>
+        <tr>
+            <th>ID</th><th>Nome</th><th>CPF</th><th>Ações</th>
+        </tr>
         </thead>
         <tbody>
-        <tr th:each="u : ${resultadosBusca}">
+        <tr th:each="u : ${usuarios}">
             <td th:text="${u.id}"></td>
-            <td th:text="${u.nomeUsuario}"></td>
-            <td th:text="${u.rg}"></td>
+            <td th:text="${u.nome}"></td>
             <td th:text="${u.cpf}"></td>
-            <td th:text="${u.nomeMae}"></td>
             <td>
-                <!-- Botão que preenche o formulário de atualização -->
-                <button type="button"
-                        th:attr="data-id=${u.id},data-nome=${u.nomeUsuario},data-rg=${u.rg},data-cpf=${u.cpf},data-nomemae=${u.nomeMae}"
-                        onclick="fillUpdateForm(this)">
-                    Editar
-                </button>
+                <a class="btn" th:href="@{/usuarios/editar/{id}(id=${u.id})}">Editar</a> |
+                <a class="btn" th:href="@{/usuarios/excluir/{id}(id=${u.id})}" onclick="return confirm('Excluir usuário?')">Excluir</a>
             </td>
         </tr>
         </tbody>
     </table>
 </div>
-
-<!-- ===== Tabela de todos os usuários ===== -->
-<h2>Usuários Cadastrados</h2>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Nome</th>
-        <th>RG</th>
-        <th>CPF</th>
-        <th>Nome da Mãe</th>
-        <th>Ação</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="usuario : ${usuarios}">
-        <td th:text="${usuario.id}"></td>
-        <td th:text="${usuario.nomeUsuario}"></td>
-        <td th:text="${usuario.rg}"></td>
-        <td th:text="${usuario.cpf}"></td>
-        <td th:text="${usuario.nomeMae}"></td>
-        <td>
-            <!-- botão para preencher o formulário de update direto da tabela -->
-            <button type="button"
-                    th:attr="data-id=${usuario.id},data-nome=${usuario.nomeUsuario},data-rg=${usuario.rg},data-cpf=${usuario.cpf},data-nomemae=${usuario.nomeMae}"
-                    onclick="fillUpdateForm(this)">
-                Editar
-            </button>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<!-- ===== JavaScript ===== -->
-<script>
-    // Submit do form de criação (mantive o seu fetch original)
-    document.getElementById("usuarioForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        var form = event.target;
-        var formData = new FormData(form);
-
-        fetch(form.action, {
-            method: form.method,
-            body: formData
-        }).then(response => {
-            if (response.ok) {
-                alert("Salvo com sucesso");
-                window.location.href = "/usuarios/pesquisa";
-            } else {
-                console.error("Erro ao salvar o usuário");
-                alert("Erro ao salvar");
-            }
-        }).catch(error => {
-            console.error("Erro ao salvar o usuário", error);
-            alert("Erro ao salvar");
-        });
-    });
-
-    // Quando clicar em "Editar" (na busca ou na tabela), preenche o formulário de update
-    function fillUpdateForm(btn) {
-        var form = document.getElementById('updateForm');
-        // campos por name (nome gerado pelo th:field)
-        var idField = form.querySelector('[name="id"]');
-        var nomeField = form.querySelector('[name="nomeUsuario"]');
-        var rgField = form.querySelector('[name="rg"]');
-        var cpfField = form.querySelector('[name="cpf"]');
-        var nomeMaeField = form.querySelector('[name="nomeMae"]');
-
-        idField.value = btn.dataset.id || '';
-        nomeField.value = btn.dataset.nome || '';
-        rgField.value = btn.dataset.rg || '';
-        cpfField.value = btn.dataset.cpf || '';
-        nomeMaeField.value = btn.dataset.nomemae || '';
-
-        // rola até o formulário de atualização
-        form.scrollIntoView({behavior: 'smooth', block: 'center'});
-    }
-
-    // submit do form de atualização via fetch (chama /usuarios/atualizar)
-    document.getElementById("updateForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        var form = event.target;
-        var formData = new FormData(form);
-
-        fetch(form.action, {
-            method: form.method,
-            body: formData
-        }).then(response => {
-            if (response.ok) {
-                alert("Atualizado com sucesso");
-                window.location.href = "/usuarios/pesquisa";
-            } else {
-                console.error("Erro ao atualizar o usuário");
-                alert("Erro ao atualizar");
-            }
-        }).catch(error => {
-            console.error("Erro ao atualizar o usuário", error);
-            alert("Erro ao atualizar");
-        });
-    });
-</script>
 </body>
 </html>

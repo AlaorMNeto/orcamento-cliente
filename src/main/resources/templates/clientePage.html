@@ -2,169 +2,118 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Gerenciamento de Clientes</title>
+  <title>Clientes</title>
   <style>
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: #f4f7fb;
-      color: #333;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: #f8f9fa; }
+    header {
+      background: #0066cc;
+      color: #fff;
+      padding: 15px 30px;
     }
-
-    h1 {
-      color: #0077cc;
-      margin-bottom: 20px;
+    header nav a {
+      color: #fff;
+      margin-right: 20px;
+      text-decoration: none;
+      font-weight: bold;
     }
+    header nav a:hover { text-decoration: underline; }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h1 { color: #333; margin-top: 0; }
 
     form {
-      background: #fff;
-      padding: 20px;
-      margin: 20px auto;
-      width: 380px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: left;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
     }
-
-    form label {
-      font-weight: bold;
-      display: block;
-      margin-top: 10px;
-    }
-
-    form input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
+    input[type="text"], input[type="number"] {
+      flex: 1;
+      padding: 8px;
       border: 1px solid #ccc;
+      border-radius: 5px;
     }
-
-    form button {
-      width: 100%;
-      background: #0077cc;
-      color: #fff;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      margin-top: 15px;
-      cursor: pointer;
-    }
-
-    form button:hover {
-      background: #005fa3;
-    }
-
-    table {
-      margin: 25px auto;
-      width: 85%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    th {
-      background: #0077cc;
-      color: white;
-    }
-
-    tr:hover {
-      background-color: #f1f1f1;
-    }
-
-    .btn-small {
-      background: #00a86b;
+    button {
+      background: #0066cc;
       color: #fff;
       border: none;
-      padding: 6px 10px;
+      padding: 8px 16px;
       border-radius: 5px;
       cursor: pointer;
     }
+    button:hover { background: #004c99; }
 
-    .btn-small.delete {
-      background: #e74c3c;
+    table {
+      width: 100%;
+      border-collapse: collapse;
     }
-
-    .btn-small:hover {
-      opacity: 0.85;
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
     }
-
-    .search-box {
-      margin: 20px auto;
-      width: 380px;
-      display: flex;
-      gap: 8px;
-    }
-
-    .search-box input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    .search-box button {
-      background: #0077cc;
+    table th {
+      background: #0066cc;
       color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      cursor: pointer;
     }
+    table tr:nth-child(even) { background: #f2f2f2; }
+    a.btn {
+      color: #0066cc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    a.btn:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
+<header>
+  <nav>
+    <a href="/clientes">Clientes</a>
+    <a href="/usuarios">Usuários</a>
+    <a href="/orcamentos">Orçamentos</a>
+  </nav>
+</header>
 
-<h1>Gerenciamento de Clientes</h1>
+<div class="container">
+  <h1>Cadastro de Clientes</h1>
 
-<!-- 🧾 Formulário de cadastro/edição -->
-<form th:action="@{/clientes}" th:object="${clienteModel}" method="post">
-  <input type="hidden" th:field="*{id}" />
+  <form th:action="@{/clientes/buscar}" method="post">
+    <input type="text" name="termo" placeholder="Buscar por nome ou CPF">
+    <button type="submit">Buscar</button>
+  </form>
 
-  <label>Nome:</label>
-  <input type="text" th:field="*{nome}" placeholder="Digite o nome" required>
+  <form th:action="@{/clientes/salvar}" th:object="${clienteModel}" method="post">
+    <input type="hidden" th:field="*{id}">
+    <input type="text" th:field="*{nome}" placeholder="Nome" required>
+    <input type="text" th:field="*{cpf}" placeholder="CPF" required>
+    <button type="submit" th:text="${clienteModel.id} != null ? 'Atualizar' : 'Cadastrar'"></button>
+  </form>
 
-  <label>CPF:</label>
-  <input type="text" th:field="*{cpf}" placeholder="Digite o CPF" required>
-
-  <button type="submit" th:text="*{id} != null ? 'Atualizar' : 'Cadastrar'"></button>
-</form>
-
-<!-- 📋 Tabela de clientes -->
-<table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Nome</th>
-    <th>CPF</th>
-    <th>Ações</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="c : ${clientes}">
-    <td th:text="${c.id}"></td>
-    <td th:text="${c.nome}"></td>
-    <td th:text="${c.cpf}"></td>
-    <td>
-      <a th:href="@{'/clientes/editar/' + ${c.id}}">
-        <button class="btn-small">Editar</button>
-      </a>
-      <a th:href="@{'/clientes/excluir/' + ${c.id}}"
-         onclick="return confirm('Deseja excluir este cliente?');">
-        <button class="btn-small delete">Excluir</button>
-      </a>
-    </td>
-  </tr>
-  </tbody>
-</table>
-
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th><th>Nome</th><th>CPF</th><th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="c : ${clientes}">
+      <td th:text="${c.id}"></td>
+      <td th:text="${c.nome}"></td>
+      <td th:text="${c.cpf}"></td>
+      <td>
+        <a class="btn" th:href="@{/clientes/editar/{id}(id=${c.id})}">Editar</a> |
+        <a class="btn" th:href="@{/clientes/excluir/{id}(id=${c.id})}" onclick="return confirm('Excluir cliente?')">Excluir</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
 </body>
 </html>
