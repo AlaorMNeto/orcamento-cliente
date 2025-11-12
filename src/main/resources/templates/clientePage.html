@@ -125,12 +125,6 @@
 
 <h1>Gerenciamento de Clientes</h1>
 
-<!-- 🔍 Busca -->
-<form class="search-box" th:action="@{/clientes/buscar}" method="post">
-  <input type="text" name="termo" placeholder="Buscar por nome ou CPF">
-  <button type="submit">Buscar</button>
-</form>
-
 <!-- 🧾 Formulário de cadastro/edição -->
 <form th:action="@{/clientes}" th:object="${clienteModel}" method="post">
   <input type="hidden" th:field="*{id}" />
