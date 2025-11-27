@@ -44,4 +44,10 @@ public class ClienteController {
         model.addAttribute("clienteModel", new ClienteModel());
         return "clientePage";
     }
+
+  @GetMapping("/relatorio")
+  public String relatorioCliente(Model model) {
+    model.addAttribute("clientes", clienteService.listarTodos());
+    return "relatorioClientePage";
+  }
 }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório de Clientes</title>
+
+  <style>
+    * { font-family: Arial; }
+    body { background: #f2f2f2; margin: 0; }
+    header {
+      background: #0066cc;
+      padding: 15px;
+      color: white;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    table th {
+      background: #0066cc;
+      color: #fff;
+    }
+  </style>
+
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="/clientes" style="color:white; margin-right:20px;">Clientes</a>
+    <a href="/usuarios" style="color:white; margin-right:20px;">Usuários</a>
+    <a href="/orcamentos" style="color:white;">Orçamentos</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <h1>Relatório de Gastos por Cliente</h1>
+
+  <form th:action="@{/relatorio/filtrar}" method="post">
+
+    <select name="clienteId">
+      <option value="">-- Todos os Clientes --</option>
+      <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome}"></option>
+    </select>
+
+    <input type="number" step="0.01" name="valorMin" placeholder="Valor mínimo">
+
+    <input type="number" step="0.01" name="valorMax" placeholder="Valor máximo">
+
+    <button type="submit">Filtrar</button>
+  </form>
+
+  <div th:if="${orcamentos}">
+    <h3 th:text="'Total gasto: R$ ' + ${total}"></h3>
+
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Descrição</th>
+        <th>Cliente</th>
+        <th>Valor (R$)</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="o : ${orcamentos}">
+        <td th:text="${o.id}"></td>
+        <td th:text="${o.descricao}"></td>
+        <td th:text="${o.cliente.nome}"></td>
+        <td th:text="${o.valor}"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>
