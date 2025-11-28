@@ -10,44 +10,46 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/clientes")
 public class ClienteController {
-    @Autowired private ClienteService clienteService;
 
-    @GetMapping
-    public String page(Model model) {
-        model.addAttribute("clientes", clienteService.listarTodos());
-        model.addAttribute("clienteModel", new ClienteModel());
-        return "clientePage";
-    }
+  @Autowired
+  private ClienteService clienteService;
 
-    @PostMapping("/salvar")
-    public String salvar(@ModelAttribute ClienteModel cliente) {
-        clienteService.salvar(cliente);
-        return "redirect:/clientes";
-    }
+  @GetMapping
+  public String page(Model model) {
+    model.addAttribute("listaClientes", clienteService.listarTodos());
+    model.addAttribute("clienteModel", new ClienteModel());
+    return "clientePage";
+  }
 
-    @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id) {
-        clienteService.excluir(id);
-        return "redirect:/clientes";
-    }
+  @PostMapping("/salvar")
+  public String salvar(@ModelAttribute ClienteModel cliente) {
+    clienteService.salvar(cliente);
+    return "redirect:/clientes";
+  }
 
-    @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model) {
-        model.addAttribute("clienteModel", clienteService.buscarPorId(id));
-        model.addAttribute("clientes", clienteService.listarTodos());
-        return "clientePage";
-    }
+  @GetMapping("/excluir/{id}")
+  public String excluir(@PathVariable Long id) {
+    clienteService.excluir(id);
+    return "redirect:/clientes";
+  }
 
-    @PostMapping("/buscar")
-    public String buscar(@RequestParam String termo, Model model) {
-        model.addAttribute("clientes", clienteService.buscarPorNomeOuCpf(termo));
-        model.addAttribute("clienteModel", new ClienteModel());
-        return "clientePage";
-    }
+  @GetMapping("/editar/{id}")
+  public String editar(@PathVariable Long id, Model model) {
+    model.addAttribute("clienteModel", clienteService.buscarPorId(id));
+    model.addAttribute("listaClientes", clienteService.listarTodos());
+    return "clientePage";
+  }
+
+  @PostMapping("/buscar")
+  public String buscar(@RequestParam String termo, Model model) {
+    model.addAttribute("listaClientes", clienteService.buscarPorNomeOuCpf(termo));
+    model.addAttribute("clienteModel", new ClienteModel());
+    return "clientePage";
+  }
 
   @GetMapping("/relatorio")
   public String relatorioCliente(Model model) {
-    model.addAttribute("clientes", clienteService.listarTodos());
+    model.addAttribute("listaClientes", clienteService.listarTodos());
     return "relatorioClientePage";
   }
 }
